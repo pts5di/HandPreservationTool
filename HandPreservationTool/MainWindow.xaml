@@ -7,6 +7,6 @@
         mc:Ignorable="d"
         Title="Hand Preservation Tool" Height="450" Width="800">
     <Grid>
-        <TextBlock Name="datadump" />
+        <TextBlock Name="datadump" Text="asdf" />
     </Grid>
 </Window>

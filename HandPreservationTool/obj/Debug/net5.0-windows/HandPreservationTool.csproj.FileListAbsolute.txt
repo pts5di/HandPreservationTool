@@ -20,3 +20,6 @@ C:\Users\Paul\source\repos\HandPreservationTool\HandPreservationTool\obj\Debug\n
 C:\Users\Paul\source\repos\HandPreservationTool\HandPreservationTool\obj\Debug\net5.0-windows\ref\HandPreservationTool.dll
 C:\Users\Paul\source\repos\HandPreservationTool\HandPreservationTool\obj\Debug\net5.0-windows\HandPreservationTool.pdb
 C:\Users\Paul\source\repos\HandPreservationTool\HandPreservationTool\obj\Debug\net5.0-windows\HandPreservationTool.genruntimeconfig.cache
+C:\Users\Paul\source\repos\HandPreservationTool\HandPreservationTool\bin\Debug\net5.0-windows\libs\vJoyInterface.dll
+C:\Users\Paul\source\repos\HandPreservationTool\HandPreservationTool\bin\Debug\net5.0-windows\vJoyInterfaceWrap.dll
+C:\Users\Paul\source\repos\HandPreservationTool\HandPreservationTool\obj\Debug\net5.0-windows\HandPreservationTool.csproj.CopyComplete
