@@ -19,9 +19,13 @@
 	  <Reference Include="vJoyInterfaceWrap">
 		  <HintPath>libs\vJoyInterfaceWrap.dll</HintPath>
 	  </Reference>
-    <None Update="libs\vJoyInterface.dll">
+    <None Update="vJoyInterface.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="libs\" />
   </ItemGroup>
 
 </Project>

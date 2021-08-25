@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,9 +22,23 @@ namespace HandPreservationTool
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static void WriteTrace(string str)
+        {
+            Trace.WriteLine($"HPT_DEBUG: {str}");
+        }
         public MainWindow()
         {
-            //var joystick = new vJoy();
+            var joystick = new vJoy();
+
+            if (!joystick.vJoyEnabled())
+            {
+                WriteTrace("vJoy driver not enabled: Failed getting vJoy attributes.");
+                return;
+            }
+            else
+            {
+                WriteTrace($"Vendor: {joystick.GetvJoyManufacturerString()}\nProduct :{joystick.GetvJoyProductString()}\nVersion Number:{joystick.GetvJoySerialNumberString()}");
+            }
             InitializeComponent();
             XInput.XInputEnable(true);
             this.datadump.Text = "big BOY";
