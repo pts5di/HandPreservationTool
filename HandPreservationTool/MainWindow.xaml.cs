@@ -26,24 +26,41 @@ namespace HandPreservationTool
         {
             Trace.WriteLine($"HPT_DEBUG: {str}");
         }
+
         public MainWindow()
         {
-            var joystick = new vJoy();
 
-            if (!joystick.vJoyEnabled())
-            {
-                WriteTrace("vJoy driver not enabled: Failed getting vJoy attributes.");
-                return;
-            }
-            else
-            {
-                WriteTrace($"Vendor: {joystick.GetvJoyManufacturerString()}\nProduct :{joystick.GetvJoyProductString()}\nVersion Number:{joystick.GetvJoySerialNumberString()}");
-            }
+            // initialize UI
             InitializeComponent();
-            XInput.XInputEnable(true);
             this.datadump.Text = "big BOY";
+
             Task.Run(async () =>
             {
+                var joystick = new vJoy();
+
+                if (!joystick.vJoyEnabled())
+                {
+                    WriteTrace("vJoy driver not enabled: Failed getting vJoy attributes.");
+                    return;
+                }
+                else
+                {
+                    WriteTrace($"Vendor: {joystick.GetvJoyManufacturerString()}\nProduct :{joystick.GetvJoyProductString()}\nVersion Number:{joystick.GetvJoySerialNumberString()}");
+                }
+
+                // initial state
+                var possibleIds = new uint[11] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+                var enabledIds = possibleIds.Where(id => joystick.isVJDExists(id)).ToArray();
+                var chosenVJoyId = enabledIds[0];
+                uint chosenXboxId = uint.MaxValue;
+
+                // initialize XInput
+                XInput.XInputEnable(true);
+
+                // initialize VJoy
+                VjdStat status = joystick.GetVJDStatus(chosenVJoyId);
+                joystick.AcquireVJD(chosenVJoyId);
+
                 while (true)
                 {
                     var str = "";
@@ -55,7 +72,17 @@ namespace HandPreservationTool
                         if (result != 0)
                         {
                             str += $"Controller {i}: is disconnected\n";
-
+                        }
+                        else if (chosenXboxId == i)
+                        {
+                            str += $"Controller {i} has been chosen\n";
+                        } 
+                        else if (chosenXboxId == uint.MaxValue)
+                        {
+                            // if the xbox controller hasn't been selected,
+                            // just pick the first one forever (for now -- we will
+                            // eventually want to add a dropdown to let the user pick)
+                            chosenXboxId = i;
                         }
                         foreach (XInput.XInputGamepadButton button in Enum.GetValues(typeof(XInput.XInputGamepadButton)))
                         {
@@ -66,8 +93,33 @@ namespace HandPreservationTool
                             }
                         }
                     }
+
+                    var chosenXboxState = new XInput.XInputState();
+                    XInput.XInputGetState(chosenXboxId, ref chosenXboxState);
+                    var xPad = chosenXboxState.Gamepad;
+                    var xPadButtons = (uint)xPad.wButtons;
+
+                    uint aButton = (uint)((xPadButtons & (0x1 << 12)) > 0 ? 0x1 << 0 : 0);
+                    uint bButton = (uint)((xPadButtons & (0x1 << 13)) > 0 ? 0x1 << 1 : 0);
+
+                    uint buttons = aButton | bButton;
+
+
+                    var vjoyInput = new vJoy.JoystickState()
+                    {
+                        bDevice = (byte)chosenVJoyId,
+                        AxisX = xPad.sThumbLX,
+                        AxisY = -xPad.sThumbLY,
+                        AxisXRot = xPad.sThumbRX,
+                        AxisYRot = xPad.sThumbRY,
+                        AxisZ = xPad.bRightTrigger,
+                        Buttons = buttons,
+                    };
+
+                    joystick.UpdateVJD(chosenVJoyId, ref vjoyInput);
+
                     await this.Dispatcher.InvokeAsync(() => { this.datadump.Text = str; });
-                    await Task.Delay(100);
+                    await Task.Delay(10);
                 }
             });
         }
